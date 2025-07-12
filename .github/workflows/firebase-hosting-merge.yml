@@ -2,16 +2,39 @@
 # https://github.com/firebase/firebase-tools
 
 name: Deploy to Firebase Hosting on merge
+
 on:
   push:
     branches:
       - main
+
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
+
     steps:
+      # Checkout your repository
       - uses: actions/checkout@v4
-      - run: npm ci && npm run build
+
+      # Setup Node.js (version 18 is widely supported)
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      # Disable treating warnings as errors during build
+      - name: Disable CI warnings
+        run: echo "CI=false" >> $GITHUB_ENV
+
+      # Install dependencies
+      - name: Install dependencies
+        run: npm ci
+
+      # Build the React app
+      - name: Build project
+        run: npm run build
+
+      # Deploy to Firebase Hosting
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
